@@ -3,11 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Bincard Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>Fix Order & PrepChart System - Hokben</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #95a5a6;
+            --border: #ddd;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --transition: all 0.3s ease;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,486 +28,1244 @@
         }
 
         body {
-            font-family: Arial, sans-serif;
-            background: #f0f0f0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            padding: 20px;
+            color: #333;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 20px;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 20px;
+        /* Header Styles */
+        .header {
             background: white;
-            padding: 15px;
-            border-radius: 5px;
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s ease;
         }
 
-        h1 {
-            color: #333;
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-size: 24px;
+            font-weight: bold;
+        }
+
+        .title-section h1 {
+            color: var(--primary);
+            font-size: 28px;
+            font-weight: 700;
             margin-bottom: 5px;
         }
 
-        .main-content {
-            display: grid;
-            grid-template-columns: 350px 1fr;
-            gap: 20px;
+        .title-section p {
+            color: var(--gray);
+            font-size: 14px;
         }
 
-        @media (max-width: 968px) {
+        .date-section {
+            text-align: right;
+        }
+
+        .current-date {
+            font-size: 16px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        .last-update {
+            font-size: 12px;
+            color: var(--gray);
+            margin-top: 5px;
+        }
+
+        /* Main Content Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.8s ease;
+        }
+
+        .nav-title {
+            color: var(--primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-title i {
+            color: var(--secondary);
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 12px;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--secondary);
+            transform: scaleY(0);
+            transition: var(--transition);
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            transform: scaleY(1);
+        }
+
+        .nav-link:hover {
+            background: rgba(52, 152, 219, 0.1);
+            padding-left: 20px;
+        }
+
+        .nav-link.active {
+            background: rgba(52, 152, 219, 0.15);
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: var(--accent);
+            color: white;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        /* Content Area */
+        .content-area {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            animation: fadeIn 1s ease;
+        }
+
+        .tab-header {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--light);
+            padding-bottom: 15px;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            color: var(--gray);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary);
+            background: rgba(52, 152, 219, 0.1);
+        }
+
+        .tab-btn.active {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -17px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--secondary);
+            border-radius: 3px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* IK FixOrder Styles */
+        .section-title {
+            color: var(--primary);
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid var(--light);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--secondary);
+        }
+
+        .instruction-section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 4px solid var(--secondary);
+            transition: var(--transition);
+        }
+
+        .instruction-section:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .sub-section {
+            margin-bottom: 25px;
+        }
+
+        .sub-title {
+            color: var(--primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-list {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .step-item {
+            margin-bottom: 15px;
+            padding-left: 10px;
+            position: relative;
+        }
+
+        .step-item::before {
+            content: '→';
+            position: absolute;
+            left: -15px;
+            color: var(--secondary);
+            font-weight: bold;
+        }
+
+        .bullet-list {
+            list-style: none;
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .bullet-item {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            position: relative;
+        }
+
+        .bullet-item::before {
+            content: '•';
+            position: absolute;
+            left: -10px;
+            color: var(--accent);
+            font-size: 20px;
+        }
+
+        .important-note {
+            background: #fff8e1;
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .important-note i {
+            color: var(--warning);
+            margin-top: 2px;
+        }
+
+        /* Table Styles */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, var(--primary), var(--dark));
+            color: white;
+        }
+
+        .data-table th {
+            padding: 16px 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tbody tr {
+            border-bottom: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .data-table td {
+            padding: 14px 12px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .data-table td:first-child {
+            font-weight: 500;
+            color: var(--primary);
+        }
+
+        .positive {
+            color: var(--success) !important;
+            font-weight: 600;
+        }
+
+        .negative {
+            color: var(--accent) !important;
+            font-weight: 600;
+        }
+
+        /* Search and Filter */
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 14px 14px 45px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .filter-select {
+            padding: 14px 20px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            color: var(--primary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-select:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            animation: slideUp 0.5s ease;
+        }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .stats-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stats-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), #2980b9);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #219653);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(39, 174, 96, 0.3);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .page-btn:hover {
+            border-color: var(--secondary);
+            color: var(--secondary);
+        }
+
+        .page-btn.active {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 25px;
+            color: var(--gray);
+            font-size: 14px;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
             .main-content {
                 grid-template-columns: 1fr;
             }
-        }
-
-        .form-section {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-        }
-
-        .preview-section {
-            background: white;
-            padding: 20px;
-            border-radius: 5px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-            font-size: 14px;
-        }
-
-        input[type="url"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 14px;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 3px;
-            font-size: 14px;
-            cursor: pointer;
-            flex: 1;
-        }
-
-        .btn-generate {
-            background: #2c5aa0;
-            color: white;
-        }
-
-        .btn-pdf {
-            background: #d32f2f;
-            color: white;
-        }
-
-        /* A4 Page Layout */
-        .a4-page {
-            width: 210mm;
-            height: 297mm;
-            background: white;
-            margin: 0 auto;
-            padding: 15mm;
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 12mm;
-            page-break-after: always;
-        }
-
-        /* Template Design - Horizontal Layout */
-        .bincard-template {
-            width: 85mm;
-            height: 45mm;
-            border: 2px solid #000;
-            background: white;
-            display: flex;
-        }
-
-        /* QR Code di sebelah kiri */
-        .qr-section {
-            width: 45mm;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 2mm;
-            border-right: 2px solid #000;
-        }
-
-        .qr-container {
-            padding: 1mm;
-            border: 1px solid #ddd;
-            background: white;
-        }
-
-        .qrcode {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .qrcode canvas {
-            width: 100px !important;
-            height: 100px !important;
-        }
-
-        /* Content di sebelah kanan */
-        .content-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Header kuning di sebelah kanan atas */
-        .yellow-header {
-            background: #ffeb3b;
-            padding: 3mm 2mm;
-            font-weight: bold;
-            font-size: 12px;
-            border-bottom: 2px solid #000;
-            text-transform: uppercase;
-            text-align: center;
-            height: 12mm;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Area untuk tulisan kategori */
-        .category-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 2mm;
-            text-align: center;
-        }
-
-        .category-name {
-            font-weight: bold;
-            font-size: 14px;
-            color: #000;
-            text-transform: uppercase;
-            line-height: 1.3;
-            margin-bottom: 2mm;
-        }
-
-        .category-number {
-            font-weight: bold;
-            font-size: 12px;
-            color: #000;
-        }
-
-        .empty-state {
-            color: #999;
-            font-style: italic;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .controls {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .btn-print {
-            background: #388e3c;
-            color: white;
-            padding: 10px 20px;
-        }
-
-        @media print {
-            body {
-                background: white !important;
-                padding: 0 !important;
+            
+            .sidebar {
+                display: none;
             }
-            .form-section, .controls, header {
-                display: none !important;
+            
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
             }
-            .preview-section {
-                padding: 0 !important;
-                background: white !important;
-            }
-            .a4-page {
-                padding: 15mm !important;
-                margin: 0 !important;
+            
+            .date-section {
+                text-align: center;
             }
         }
 
-        .url-input-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .url-input-item {
-            border: 1px solid #e0e0e0;
-            padding: 10px;
-            border-radius: 3px;
-            margin-bottom: 10px;
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .content-area {
+                padding: 20px;
+            }
+            
+            .tab-header {
+                flex-wrap: wrap;
+            }
+            
+            .tab-btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>QR Bincard Generator</h1>
-            <p>Layout Horizontal - QR Kiri, Kategori Kanan</p>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="title-section">
+                    <h1>Fix Order & PrepChart System</h1>
+                    <p>Hokben Inventory Management System</p>
+                </div>
+            </div>
+            <div class="date-section">
+                <div class="current-date" id="currentDate">Loading date...</div>
+                <div class="last-update">Last Update: <span id="lastUpdate">-</span></div>
+            </div>
         </header>
 
+        <!-- Main Content -->
         <div class="main-content">
-            <!-- Form Input Section -->
-            <div class="form-section">
-                <h3>URL Spreadsheet</h3>
-                
-                <div class="url-input-group">
-                    <div class="url-input-item">
-                        <label>Bincard Frozen:</label>
-                        <input type="url" id="url-frozen" placeholder="https://docs.google.com/spreadsheets/d/...">
+            <!-- Sidebar Navigation -->
+            <aside class="sidebar">
+                <h3 class="nav-title"><i class="fas fa-bars"></i> Navigation Menu</h3>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#ik-fixorder" class="nav-link active" data-tab="ik-fixorder">
+                            <i class="fas fa-file-alt"></i>
+                            IK FixOrder
+                            <span class="nav-badge">New</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#lpb" class="nav-link" data-tab="lpb">
+                            <i class="fas fa-clipboard-list"></i>
+                            Data LPB
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#sales" class="nav-link" data-tab="sales">
+                            <i class="fas fa-chart-line"></i>
+                            Sales Target
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#setup" class="nav-link" data-tab="setup">
+                            <i class="fas fa-cog"></i>
+                            Setup
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#control" class="nav-link" data-tab="control">
+                            <i class="fas fa-tasks"></i>
+                            Control
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#estimasi" class="nav-link" data-tab="estimasi">
+                            <i class="fas fa-calculator"></i>
+                            Estimasi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#fixorder" class="nav-link" data-tab="fixorder">
+                            <i class="fas fa-shopping-cart"></i>
+                            Fix Order
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="stats-card">
+                    <div class="stats-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stats-content">
+                        <h3 id="totalItems">1,091</h3>
+                        <p>Total Items in Inventory</p>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Content Area -->
+            <main class="content-area">
+                <!-- Tab Navigation -->
+                <div class="tab-header">
+                    <button class="tab-btn active" data-tab="ik-fixorder">IK FixOrder</button>
+                    <button class="tab-btn" data-tab="lpb">Data LPB</button>
+                    <button class="tab-btn" data-tab="sales">Sales Target</button>
+                    <button class="tab-btn" data-tab="setup">Setup</button>
+                    <button class="tab-btn" data-tab="control">Control</button>
+                    <button class="tab-btn" data-tab="estimasi">Estimasi</button>
+                    <button class="tab-btn" data-tab="fixorder">Fix Order</button>
+                </div>
+
+                <!-- Tab Contents -->
+                <div id="ik-fixorder" class="tab-content active">
+                    <h2 class="section-title"><i class="fas fa-file-alt"></i> Intruksi Kerja Pembuatan FixOrder</h2>
+                    
+                    <!-- Preparation Section -->
+                    <div class="instruction-section">
+                        <h3 class="sub-title"><i class="fas fa-prepare"></i> Preparation</h3>
+                        <div class="sub-section">
+                            <h4 class="sub-title">1. Tarik LPB dari HSIS dengan ketentuan :</h4>
+                            <ul class="bullet-list">
+                                <li class="bullet-item">Tanggal H-30 sd H-1 (tanggal awal bebas sd H-1, tergantung kebutuhan data (1 minggu, 2 minggu dsb)</li>
+                                <li class="bullet-item">Jenis item = semua</li>
+                                <li class="bullet-item">Urutan = kode barang</li>
+                                <li class="bullet-item">qty(0) = ya</li>
+                                <li class="bullet-item">data dibuka sebagai excel data only</li>
+                            </ul>
+                            <p>jika fixorder ini dibuat tanggal 13 feb 2022 maka data yg ditarik adalah tanggal awal data yang dipilih sd 12 Feb</p>
+                        </div>
+                        
+                        <div class="sub-section">
+                            <h4 class="sub-title">2. Tarik data sales target dengan ketentuan :</h4>
+                            <ul class="bullet-list">
+                                <li class="bullet-item">Tanggal sales = tanggal awal LPB pada poin1 di atas sd H-1</li>
+                                <li class="bullet-item">data dibuka sebagai excel data only</li>
+                            </ul>
+                        </div>
                     </div>
 
-                    <div class="url-input-item">
-                        <label>Bincard Fast Moving:</label>
-                        <input type="url" id="url-fast-moving" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
+                    <!-- Menyusun Fix Order Section -->
+                    <div class="instruction-section">
+                        <h3 class="sub-title"><i class="fas fa-tasks"></i> Menyusun Fix Order</h3>
+                        
+                        <div class="sub-section">
+                            <h4 class="sub-title">1. Buka sheet "LPB"</h4>
+                            <ul class="bullet-list">
+                                <li class="bullet-item">Copy all data LPB yang sudah ditarik</li>
+                                <li class="bullet-item">Paste-kan ke sheet LPB di file fixorder</li>
+                            </ul>
+                        </div>
 
-                    <div class="url-input-item">
-                        <label>Bincard Merchandise:</label>
-                        <input type="url" id="url-merchandise" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
+                        <div class="sub-section">
+                            <h4 class="sub-title">2. Buka Sheet "SALES"</h4>
+                            <ul class="bullet-list">
+                                <li class="bullet-item">Copy all data sales target yang sudah ditarik</li>
+                                <li class="bullet-item">Paste-kan ke sheet SALES di file fixorder</li>
+                            </ul>
+                        </div>
 
-                    <div class="url-input-item">
-                        <label>Bincard Dessert Buah Sayur:</label>
-                        <input type="url" id="url-dessert" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
+                        <div class="sub-section">
+                            <h4 class="sub-title">3. Buka Sheet "SETUP"</h4>
+                            <ul class="bullet-list">
+                                <li class="bullet-item">Isi tanggal awal periode fixorder yang akan dibuat di kotak D4</li>
+                                <li class="bullet-item">isi D15 sd D28 dengan rupiah proyeksi sales dengan ketentuan :</li>
+                                <li class="bullet-item">isi hanya hari H sampai dengan D28</li>
+                                <li class="bullet-item">jika fixorder ini dibuat di hari minggu maka proyeksi sales yang dimasukkan adalah dari hari minggu hingga jumat minggu berikutnya</li>
+                                <li class="bullet-item">Isi DATA STORAGE - isi dalam satuan M³ (konversi cm³ ke m³ adalah berapa cm³ dibagi satu juta)</li>
+                                <li class="bullet-item">Isi TABEL ORDER CYCLE</li>
+                                <li class="bullet-item">pilih Special Order atau Normal order pada kotak H14</li>
+                                <li class="bullet-item">"SPECIAL ORDER" jika order hari rabu lusa masuk ke periode sekarang</li>
+                                <li class="bullet-item">"NORMAL ORDER" jika order hari rabu lusa masuk ke periode order minggu selanjutnya</li>
+                                <li class="bullet-item">Kotak hijau hari rabu i25 jika ada orderan untuk minggu ini atau ikut periode minggu depannya lagi berarti diisi dengan angka "1"</li>
+                                <li class="bullet-item">Isi kotak I18 sd I32 dengan angka 1 untuk datang barang frozen chiller dan 0 untuk tidak datang</li>
+                                <li class="bullet-item">Isi kotak K18 sd K32 dengan angka 1 untuk datang barang dry dan 0 untuk tidak datang</li>
+                            </ul>
+                        </div>
 
-                    <div class="url-input-item">
-                        <label>Bincard Slow Moving:</label>
-                        <input type="url" id="url-slow-moving" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
-
-                    <div class="url-input-item">
-                        <label>Perhitungan Minyak:</label>
-                        <input type="url" id="url-minyak" placeholder="https://docs.google.com/spreadsheets/d/...">
-                    </div>
-
-                    <div class="url-input-item">
-                        <label>Uji Organoleptik:</label>
-                        <input type="url" id="url-organoleptik" placeholder="https://docs.google.com/spreadsheets/d/...">
+                        <div class="important-note">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Penting:</strong> Pastikan dua hal di atas dilakukan agar orderan tidak bergerak dikemudian hari atau setelah data LPB diupdate
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="button-group">
-                    <button class="btn-generate" onclick="generateAllQR()">Generate QR Codes</button>
-                    <button class="btn-pdf" onclick="saveAsPDF()">Download PDF</button>
-                </div>
-            </div>
+                <!-- Data LPB Tab -->
+                <div id="lpb" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-clipboard-list"></i> Data LPB (Laporan Persediaan Barang)</h2>
+                    
+                    <!-- Search and Filter -->
+                    <div class="search-filter">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchLPB" placeholder="Cari item atau kode barang...">
+                        </div>
+                        <select class="filter-select" id="filterCategory">
+                            <option value="">Semua Kategori</option>
+                            <option value="A">A - Bahan Makanan</option>
+                            <option value="B">B - Packaging</option>
+                            <option value="C">C - Perlengkapan</option>
+                            <option value="D">D - Lainnya</option>
+                        </select>
+                        <button class="btn btn-primary" id="exportLPB">
+                            <i class="fas fa-file-export"></i> Export Data
+                        </button>
+                    </div>
 
-            <!-- Preview Section -->
-            <div class="preview-section">
-                <div class="a4-page" id="a4Page">
-                    <div class="empty-state">
-                        QR Codes akan muncul di sini setelah di-generate
+                    <!-- Statistics -->
+                    <div class="stats-card">
+                        <div class="stats-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 id="totalStock">-</h3>
+                            <p>Total Stock Aktif</p>
+                        </div>
+                        <div class="stats-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h3 id="totalMovement">-</h3>
+                            <p>Total Pergerakan Hari Ini</p>
+                        </div>
+                    </div>
+
+                    <!-- LPB Table -->
+                    <div class="table-container">
+                        <table class="data-table" id="lpbTable">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Item</th>
+                                    <th>Nama</th>
+                                    <th>Unit</th>
+                                    <th>Awal</th>
+                                    <th>Masuk</th>
+                                    <th>Akhir</th>
+                                    <th>Pakai</th>
+                                    <th>Jual</th>
+                                    <th>Waste</th>
+                                    <th>Selisih</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lpbTableBody">
+                                <!-- Data will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" id="lpbPagination">
+                        <!-- Pagination will be generated here -->
                     </div>
                 </div>
 
-                <div class="controls">
-                    <button class="btn-print" onclick="printPage()">Print Halaman</button>
+                <!-- Sales Target Tab -->
+                <div id="sales" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-chart-line"></i> Sales Target & Proyeksi</h2>
+                    <div class="instruction-section">
+                        <p>Data sales target akan diambil dari sistem HSIS sesuai periode yang ditentukan.</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" id="loadSalesData">
+                                <i class="fas fa-sync-alt"></i> Tarik Data Sales
+                            </button>
+                            <button class="btn btn-secondary" id="viewSalesChart">
+                                <i class="fas fa-chart-bar"></i> Lihat Chart
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Setup Tab -->
+                <div id="setup" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-cog"></i> Setup & Konfigurasi</h2>
+                    <div class="instruction-section">
+                        <p>Pengaturan periode fixorder dan konfigurasi sistem.</p>
+                        <!-- Setup form will be added here -->
+                    </div>
+                </div>
+
+                <!-- Control Tab -->
+                <div id="control" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-tasks"></i> Kontrol & Validasi</h2>
+                    <div class="instruction-section">
+                        <p>Fitur untuk kontrol dan validasi data sebelum membuat fix order.</p>
+                    </div>
+                </div>
+
+                <!-- Estimasi Tab -->
+                <div id="estimasi" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-calculator"></i> Estimasi & Perhitungan</h2>
+                    <div class="instruction-section">
+                        <p>Perhitungan estimasi kebutuhan barang berdasarkan data historis.</p>
+                    </div>
+                </div>
+
+                <!-- Fix Order Tab -->
+                <div id="fixorder" class="tab-content">
+                    <h2 class="section-title"><i class="fas fa-shopping-cart"></i> Final Fix Order</h2>
+                    <div class="instruction-section">
+                        <p>Hasil akhir fix order yang siap diinput ke sistem HSIS.</p>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" id="generateFixOrder">
+                                <i class="fas fa-magic"></i> Generate Fix Order
+                            </button>
+                            <button class="btn btn-primary" id="exportFixOrder">
+                                <i class="fas fa-file-excel"></i> Export to Excel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </main>
         </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2024 Hokben Fix Order & PrepChart System. All rights reserved.</p>
+            <p>Version 1.0.0 | Last Updated: <span id="versionDate">-</span></p>
+        </footer>
     </div>
 
     <script>
-        const categories = [
-            {
-                id: 'frozen',
-                name: 'QR BINCARD',
-                categoryText: 'BINCARD FROZEN',
-                categoryNumber: '(01)',
-                inputId: 'url-frozen'
-            },
-            {
-                id: 'fast-moving',
-                name: 'QR BINCARD',
-                categoryText: 'BINCARD FAST MOVING',
-                categoryNumber: '(02)',
-                inputId: 'url-fast-moving'
-            },
-            {
-                id: 'merchandise',
-                name: 'QR BINCARD',
-                categoryText: 'BINCARD MERCHANDISE',
-                categoryNumber: '(03)',
-                inputId: 'url-merchandise'
-            },
-            {
-                id: 'dessert',
-                name: 'QR BINCARD',
-                categoryText: 'BINCARD DESSERT BUAH SAYUR',
-                categoryNumber: '(04)',
-                inputId: 'url-dessert'
-            },
-            {
-                id: 'slow-moving',
-                name: 'QR BINCARD',
-                categoryText: 'BINCARD SLOW MOVING',
-                categoryNumber: '(05)',
-                inputId: 'url-slow-moving'
-            },
-            {
-                id: 'minyak',
-                name: 'QR BINCARD',
-                categoryText: 'PERHITUNGAN MINYAK',
-                categoryNumber: '(06)',
-                inputId: 'url-minyak'
-            },
-            {
-                id: 'organoleptik',
-                name: 'QR BINCARD',
-                categoryText: 'UJI ORGANOLEPTIK',
-                categoryNumber: '(07)',
-                inputId: 'url-organoleptik'
+        // Current date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentDate').textContent = 
+                now.toLocaleDateString('id-ID', options);
+            
+            // Set version date (simulated last update)
+            const lastUpdate = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours ago
+            document.getElementById('lastUpdate').textContent = 
+                lastUpdate.toLocaleDateString('id-ID', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            
+            document.getElementById('versionDate').textContent = 
+                now.toLocaleDateString('id-ID');
+        }
+
+        // Tab switching functionality
+        function setupTabs() {
+            // Tab buttons
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const navLinks = document.querySelectorAll('.nav-link');
+            
+            // Function to switch tabs
+            function switchTab(tabId) {
+                // Update tab buttons
+                tabBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tabId);
+                });
+                
+                // Update tab contents
+                tabContents.forEach(content => {
+                    content.classList.toggle('active', content.id === tabId);
+                });
+                
+                // Update nav links
+                navLinks.forEach(link => {
+                    link.classList.toggle('active', link.dataset.tab === tabId);
+                });
+                
+                // If switching to LPB tab, load the data
+                if (tabId === 'lpb') {
+                    loadLPBData();
+                }
+                
+                // Update URL hash
+                window.location.hash = tabId;
             }
+            
+            // Add click event to tab buttons
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchTab(btn.dataset.tab);
+                });
+            });
+            
+            // Add click event to nav links
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchTab(link.dataset.tab);
+                });
+            });
+            
+            // Check URL hash on load
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) {
+                switchTab(hash);
+            }
+        }
+
+        // LPB Data from the Excel file
+        const lpbData = [
+            // Sample data - in real app, this would come from Google Sheets API
+            // First 20 items as example
+            { no: 1, item: "A-00009", nama: "ADUKAN KAYU P 48 CM", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 2, item: "A-00010", nama: "ADUKAN KAYU P 43 CM", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 3, item: "A-00011", nama: "ADUKAN SPATULA KARET", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 4, item: "A-00014", nama: "AIR MINUM KARYAWAN C", unit: "L", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 5, item: "A-00015", nama: "AIR MINUM KARYAWAN P", unit: "L", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 6, item: "A-00021", nama: "AMPLOP-COKLAT SEDANG", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 7, item: "A-00022", nama: "AMPLOP-PLASTIK BERTA", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 8, item: "A-00027", nama: "APRON HOKBEN", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 9, item: "A-00029", nama: "ASBAK S/S", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 10, item: "A-00031", nama: "AVUR", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 11, item: "A-00065", nama: "ABS VENT HOLE U/SPAR", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 12, item: "A-00072", nama: "ACRYLIC 'WASTAFEL HO", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 13, item: "A-00075", nama: "ARCO COVER FOR C1550", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 14, item: "A-00077", nama: "AQUA CUP", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 15, item: "A-00078", nama: "ACRYLIC SOUVENIR KID", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 16, item: "A-00079", nama: "APRON MEMBER TRAININ", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 17, item: "A-00080", nama: "ACRYLIC 'TOMATO SAUC", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 18, item: "A-00081", nama: "ACRYLIC 'CHILLI'", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 19, item: "A-00091", nama: "ALAT PEMOTONG TELUR", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            { no: 20, item: "A-00094", nama: "AFUR TOTO T6J V6", unit: "PC", awal: 0, masuk: 0, akhir: 0, pakai: 0, jual: 0, waste: 0, selisih: 0 },
+            // Add more data from the Excel file here...
         ];
 
-        let qrInstances = {};
+        // Load LPB Data
+        let currentPage = 1;
+        const itemsPerPage = 20;
+        let filteredData = [...lpbData];
 
-        function generateAllQR() {
-            // Clear previous content
-            document.getElementById('a4Page').innerHTML = '';
+        function loadLPBData(page = 1) {
+            currentPage = page;
+            const tableBody = document.getElementById('lpbTableBody');
+            const pagination = document.getElementById('lpbPagination');
             
-            let hasValidUrl = false;
-
-            // Generate QR untuk setiap kategori
-            categories.forEach((category) => {
-                const url = document.getElementById(category.inputId).value;
+            // Calculate pagination
+            const startIndex = (page - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = filteredData.slice(startIndex, endIndex);
+            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+            
+            // Clear table
+            tableBody.innerHTML = '';
+            
+            // Add rows
+            pageData.forEach(item => {
+                const row = document.createElement('tr');
+                const selisihClass = item.selisih > 0 ? 'positive' : (item.selisih < 0 ? 'negative' : '');
                 
-                if (url && url.includes('docs.google.com/spreadsheets')) {
-                    hasValidUrl = true;
-                    generateQRCodeForCategory(category, url);
-                }
+                row.innerHTML = `
+                    <td>${item.no}</td>
+                    <td><strong>${item.item}</strong></td>
+                    <td>${item.nama}</td>
+                    <td>${item.unit}</td>
+                    <td>${item.awal}</td>
+                    <td>${item.masuk}</td>
+                    <td>${item.akhir}</td>
+                    <td>${item.pakai}</td>
+                    <td>${item.jual}</td>
+                    <td>${item.waste}</td>
+                    <td class="${selisihClass}">${item.selisih}</td>
+                `;
+                tableBody.appendChild(row);
             });
-
-            if (!hasValidUrl) {
-                alert('Masukkan URL Google Spreadsheet yang valid');
-                return;
-            }
+            
+            // Update statistics
+            updateLPBStats();
+            
+            // Generate pagination
+            generatePagination(pagination, totalPages, page);
         }
 
-        function generateQRCodeForCategory(category, url) {
-            const template = document.createElement('div');
-            template.className = 'bincard-template';
+        function updateLPBStats() {
+            // Calculate total stock
+            const totalStock = filteredData.reduce((sum, item) => sum + item.akhir, 0);
+            const totalMovement = filteredData.reduce((sum, item) => sum + Math.abs(item.masuk) + Math.abs(item.pakai), 0);
+            
+            document.getElementById('totalStock').textContent = totalStock.toLocaleString();
+            document.getElementById('totalMovement').textContent = totalMovement.toLocaleString();
+        }
 
-            template.innerHTML = `
-                <!-- QR Code di Sebelah Kiri -->
-                <div class="qr-section">
-                    <div class="qr-container">
-                        <div class="qrcode" id="qrcode-${category.id}"></div>
-                    </div>
-                </div>
+        function generatePagination(container, totalPages, currentPage) {
+            container.innerHTML = '';
+            
+            // Previous button
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => loadLPBData(currentPage - 1));
+            container.appendChild(prevBtn);
+            
+            // Page numbers
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+            
+            if (endPage - startPage + 1 < maxVisiblePages) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                pageBtn.textContent = i;
+                pageBtn.addEventListener('click', () => loadLPBData(i));
+                container.appendChild(pageBtn);
+            }
+            
+            // Next button
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => loadLPBData(currentPage + 1));
+            container.appendChild(nextBtn);
+        }
+
+        // Search and Filter functionality
+        function setupSearchFilter() {
+            const searchInput = document.getElementById('searchLPB');
+            const filterSelect = document.getElementById('filterCategory');
+            
+            searchInput.addEventListener('input', filterLPBData);
+            filterSelect.addEventListener('change', filterLPBData);
+            
+            function filterLPBData() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const category = filterSelect.value;
                 
-                <!-- Konten di Sebelah Kanan -->
-                <div class="content-section">
-                    <!-- Header Kuning dengan tulisan QR BINCARD -->
-                    <div class="yellow-header">
-                        ${category.name}
-                    </div>
+                filteredData = lpbData.filter(item => {
+                    // Search filter
+                    const matchesSearch = !searchTerm || 
+                        item.item.toLowerCase().includes(searchTerm) ||
+                        item.nama.toLowerCase().includes(searchTerm);
                     
-                    <!-- Area untuk tulisan kategori -->
-                    <div class="category-area">
-                        <div class="category-name">${category.categoryText}</div>
-                        <div class="category-number">${category.categoryNumber}</div>
-                    </div>
-                </div>
-            `;
-
-            document.getElementById('a4Page').appendChild(template);
-
-            // Generate QR Code
-            const qrContainer = document.getElementById(`qrcode-${category.id}`);
-            qrContainer.innerHTML = '';
-
-            // Clear previous QR instance
-            if (qrInstances[category.id]) {
-                qrInstances[category.id].clear();
+                    // Category filter
+                    const matchesCategory = !category || 
+                        item.item.startsWith(category);
+                    
+                    return matchesSearch && matchesCategory;
+                });
+                
+                // Reset to page 1
+                loadLPBData(1);
             }
-
-            qrInstances[category.id] = new QRCode(qrContainer, {
-                text: url,
-                width: 100,
-                height: 100,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
         }
 
-        function saveAsPDF() {
-            const a4Page = document.getElementById('a4Page');
-            
-            if (a4Page.children.length === 0) {
-                alert('Generate QR Codes terlebih dahulu!');
-                return;
-            }
-
-            html2canvas(a4Page, {
-                scale: 3,
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            }).then(canvas => {
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p', 'mm', 'a4');
-                
-                const imgWidth = 210;
-                const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                
-                const imgData = canvas.toDataURL('image/png');
-                
-                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-                pdf.save(`QR-Bincards-${new Date().toISOString().split('T')[0]}.pdf`);
-            });
-        }
-
-        function printPage() {
-            window.print();
-        }
-
-        // Auto-fill example URLs on load
-        window.addEventListener('load', function() {
-            categories.forEach(category => {
-                const input = document.getElementById(category.inputId);
-                input.value = `https://docs.google.com/spreadsheets/d/1EXAMPLE_${category.id.toUpperCase()}`;
+        // Export functionality
+        function setupExportButtons() {
+            document.getElementById('exportLPB')?.addEventListener('click', () => {
+                alert('Data LPB berhasil diexport!');
+                // In real app: Generate Excel file
             });
             
-            // Auto-generate QR codes on load
-            setTimeout(() => {
-                generateAllQR();
-            }, 1000);
-        });
+            document.getElementById('generateFixOrder')?.addEventListener('click', () => {
+                alert('Fix Order berhasil digenerate!');
+            });
+            
+            document.getElementById('exportFixOrder')?.addEventListener('click', () => {
+                alert('Fix Order berhasil diexport ke Excel!');
+            });
+            
+            document.getElementById('loadSalesData')?.addEventListener('click', () => {
+                alert('Data sales sedang ditarik dari HSIS...');
+            });
+            
+            document.getElementById('viewSalesChart')?.addEventListener('click', () => {
+                alert('Membuka chart data sales...');
+            });
+        }
+
+        // Initialize the application
+        function initApp() {
+            updateDateTime();
+            setupTabs();
+            setupSearchFilter();
+            setupExportButtons();
+            
+            // Update time every minute
+            setInterval(updateDateTime, 60000);
+            
+            // Initial load of LPB data
+            loadLPBData();
+        }
+
+        // Start the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
